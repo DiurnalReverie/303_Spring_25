@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import datetime
 import string
 
@@ -78,3 +79,6 @@ class CheckingAccount(BankAccount):
             self.balance -= 30
             print(f"Overdraft fee applied. New balance: {self.balance}")
         super().withdraw(amount)
+=======
+
+>>>>>>> 11ffb93bc671b3447ccdad2959184d991810b0a1
