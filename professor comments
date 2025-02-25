@@ -1,0 +1,5 @@
+# Code performs generally as described, but some minor tweaks needed to satisfy testing conditions. 
+# Can use pytest output to debug and fix issues by looking at error messages, and also the samble input and output (example 4 for encode shows a capital letter converted to a lowercase letter)
+# -failed 5 tests due to capitalization, convert input text to lower first. Using the ord() method doesn't really wrap around from the end of a list to the beginning as a traditional caesar cipher, as it did not use the alphabet list.
+# -failed a bank account deposit test due to raising a value error. You only needed to not allow the deposit, not raise an error (at an ATM you want to gracefully handle such situations, not throw an error and halt all code operation)
+# -checking account withdraw method resulted in the $30 fee being assessed but not the withdrawal. 
