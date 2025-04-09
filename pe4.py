@@ -1,4 +1,4 @@
-#Pair Exercise 4 with Mark Villamayorr 
+#Pair Exercise 4 with Jade Sleiman and Mark Villamayor
 
 import wikipedia
 import time
