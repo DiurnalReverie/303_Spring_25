@@ -1,103 +1,106 @@
-#Pair Exercise 4 with Jade Sleiman and Mark Villamayor
+# Pair Exercise 4 with Jade Sleiman and Mark Villamayor
+# This program demonstrates sequential and concurrent downloading of Wikipedia content
 
+# Import required libraries
 import wikipedia
 import time
 import concurrent.futures
-import os
 
-def clean_filename(title):
-    """Create a valid filename from a Wikipedia page title"""
-    # Replace any characters that might cause issues in filenames
-    invalid_chars = ['/', '\\', ':', '*', '?', '"', '<', '>', '|']
-    for char in invalid_chars:
-        title = title.replace(char, '_')
-    return title
+# Section A: Sequentially download wikipedia content
+def sequential_download():
+    # A.1. Use the wikipedia.search method to return a list of topics related to 'generative artificial intelligence'
+    print("Starting sequential download...")
+    topics = wikipedia.search('generative artificial intelligence')
+    
+    # Record start time for performance measurement
+    start_time = time.perf_counter()
+    
+    # A.2. Iterate over the topics returned in #1 above using a for loop
+    for topic in topics:
+        try:
+            # Assign the page contents to a variable named page using the wikipedia.page method
+            # Using auto_suggest=False to get exact matches
+            page = wikipedia.page(topic, auto_suggest=False)
+            
+            # Assign the page title to a variable
+            title = page.title
+            
+            # Retrieve the references for that page
+            references = page.references
+            
+            # Create a filename based on the page title
+            filename = f"{title}.txt"
+            
+            # Write the references to a .txt file with each reference on its own line
+            with open(filename, 'w', encoding='utf-8') as file:
+                # Join the references with newlines to ensure each is on its own line
+                file.write('\n'.join(references))
+                
+            print(f"Sequential: Saved references for '{title}'")
+        except Exception as e:
+            print(f"Error processing topic '{topic}': {e}")
+    
+    # A.3. Print to the console the amount of time it took the above code to execute
+    end_time = time.perf_counter()
+    execution_time = end_time - start_time
+    print(f"Sequential download completed in {execution_time:.4f} seconds")
+    return execution_time
 
-def write_references_to_file(title, references):
-    """Write references to a text file named after the page title"""
-    filename = clean_filename(title) + ".txt"
-    with open(filename, 'w', encoding='utf-8') as file:
-        for ref in references:
-            file.write(ref + '\n')
-
+# Section B: Concurrently download wikipedia content
+# B.2. Create a function that retrieves and saves Wikipedia content
 def wiki_dl_and_save(topic):
-    """Download Wikipedia page for a topic and save its references to a file"""
     try:
-        # Get the Wikipedia page with auto_suggest=False
+        # Retrieve the wikipedia page for the topic
         page = wikipedia.page(topic, auto_suggest=False)
+        
+        # Get the title and the references for the topic
         title = page.title
         references = page.references
         
-        # Write references to a file
-        write_references_to_file(title, references)
+        # Create a .txt file where the name of the file is the title of the topic
+        filename = f"{title}_concurrent.txt"
         
-        return f"Saved references for '{title}'"
+        # Write the references to the file with each reference on its own line
+        with open(filename, 'w', encoding='utf-8') as file:
+            file.write('\n'.join(references))
+            
+        print(f"Concurrent: Saved references for '{title}'")
+        return title
     except Exception as e:
-        return f"Error processing '{topic}': {str(e)}"
+        print(f"Error processing topic '{topic}': {e}")
+        return None
 
-# Section A: Sequential download
-def sequential_download():
-    print("Starting sequential download...")
-    start_time = time.perf_counter()
-    
-    # 1. Search for topics related to 'generative artificial intelligence'
-    topics = wikipedia.search('generative artificial intelligence')
-    
-    # 2. Iterate over topics and save references
-    for topic in topics:
-        try:
-            page = wikipedia.page(topic, auto_suggest=False)
-            title = page.title
-            references = page.references
-            
-            write_references_to_file(title, references)
-            
-            print(f"Saved references for '{title}'")
-        except Exception as e:
-            print(f"Error processing '{topic}': {str(e)}")
-    
-    end_time = time.perf_counter()
-    elapsed_time = end_time - start_time
-    
-    # 3. Print execution time
-    print(f"Sequential download completed in {elapsed_time:.2f} seconds")
-    return elapsed_time
-
-# Section B: Concurrent download
 def concurrent_download():
+    # B.1. Use the wikipedia.search method to return a list of topics
     print("\nStarting concurrent download...")
-    start_time = time.perf_counter()
-    
-    # 1. Search for topics related to 'generative artificial intelligence'
     topics = wikipedia.search('generative artificial intelligence')
     
-    # 3. Use ThreadPoolExecutor to execute the function concurrently
+    # Record start time for performance measurement
+    start_time = time.perf_counter()
+    
+    # B.3. Use ThreadPoolExecutor to execute concurrently the function defined in step 2
     with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Use the map method to apply the function to each topic in the list
+        # This will execute the function concurrently for all topics
         results = list(executor.map(wiki_dl_and_save, topics))
     
-    # Print results
-    for result in results:
-        print(result)
-    
+    # B.4. Print to the console the amount of time it took the code to execute
     end_time = time.perf_counter()
-    elapsed_time = end_time - start_time
-    
-    # 4. Print execution time
-    print(f"Concurrent download completed in {elapsed_time:.2f} seconds")
-    return elapsed_time
+    execution_time = end_time - start_time
+    print(f"Concurrent download completed in {execution_time:.4f} seconds")
+    return execution_time
 
+# Main execution
 if __name__ == "__main__":
-    # Create a directory for output files if it doesn't exist
-    os.makedirs("wikipedia_references", exist_ok=True)
-    os.chdir("wikipedia_references")
-    
-    # Run both methods and compare times
+    # Run sequential download
     seq_time = sequential_download()
+    
+    # Run concurrent download
     conc_time = concurrent_download()
     
     # Compare the performance
     speedup = seq_time / conc_time if conc_time > 0 else 0
     print(f"\nPerformance comparison:")
-    print(f"Sequential: {seq_time:.2f} seconds")
-    print(f"Concurrent: {conc_time:.2f} seconds")
-    print(f"Speedup: {speedup:.2f}x")
+    print(f"Sequential execution: {seq_time:.4f} seconds")
+    print(f"Concurrent execution: {conc_time:.4f} seconds")
+    print(f"Speedup factor: {speedup:.2f}x")
